@@ -28,7 +28,7 @@ const LoginForm = () => {
   const [profile, setProfile] = useState(null)
   const { isDarkMode, toggleTheme } = useTheme();
 
-  const { login, register, isAuthenticated } = useAuth();
+  const { login, register, handleGoogleAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -73,6 +73,19 @@ const LoginForm = () => {
 
     setIsLoading(false)
   }
+
+  // const handleGoogleAuth = async () => {
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: 'google',
+  //     options: {
+  //       redirectTo: window.location.origin,
+  //     },
+  //   })
+  //   if (error) {
+  //     console.error('Google login error:', error.message);
+  //     alert("google sign in failed")
+  //   }
+  // }
 
   return (
     <div 
@@ -222,7 +235,7 @@ const LoginForm = () => {
             <div className="text-center text-gray-900 dark:text-gray-100 hover:text-gray-300 pt- w-full h-11 flex bg-gray-100 dark:bg-gray-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 dark:hover:bg-gradient-to-r dark:hover:from-gray-900 dark:hover:to-gray-600  border border-indigo-700 dark:border-gray-800 items-center justify-center space-x-1">
               <button
                 type="button"
-                // onClick={() => setIsLogin(!isLogin)}
+                onClick={handleGoogleAuth}
                 className="text-sm font-medium "
               >
                 {isLogin 

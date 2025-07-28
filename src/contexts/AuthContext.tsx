@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../components/auth/supabaseClient'
+import { toast } from '../hooks/use-toast';
 
 interface User {
 id: string;
@@ -15,6 +16,7 @@ isLoading: boolean;
 login: (email: string, password: string) => Promise<boolean>;
 register: (firstName: string, lastName: string, email: string, password: string) => Promise<boolean>;
 logout: () => Promise<void>;
+handleGoogleAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ const [user, setUser] = useState<User | null>(null);
 const [isLoading, setIsLoading] = useState(true);
 
 useEffect(() => {
+
   const getUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     const currentUser = session?.user;
@@ -76,42 +79,7 @@ useEffect(() => {
   };
 }, []);
 
-// useEffect(() => {
-// const getUser = async () => {
-// const { data: { session } } = await supabase.auth.getSession();
-// const currentUser = session?.user;
 
-// if (currentUser) {
-// setUser({
-// id: currentUser.id,
-// firstName: currentUser.email?.split('@')[0] || '',
-// lastName: currentUser.email?.split('@')[0] || '',
-// email: currentUser.email || '',
-// });
-// }
-// setIsLoading(false);
-// };
-
-// getUser();
-
-// const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-// if (session?.user) {
-// setUser({
-// id: session.user.id,
-// // firstName: session.user.email?.split('@')[0] || '',
-// firstName: session.user.first_name,
-// lastName: session.user.email?.split('@')[0] || '',
-// email: session.user.email || '',
-// });
-// } else {
-// setUser(null);
-// }
-// });
- 
-// return () => {
-// listener.subscription.unsubscribe();
-// };
-// }, []);
 
   const login = async (
     email: string, 
@@ -160,7 +128,7 @@ useEffect(() => {
       if (error || !data.user) {
         return false;
       }
-
+      // const user = data.user
       // If email confirmation is enabled, don't insert profile yet
       if (!data.user?.id || !data.session) {
         console.log("Awaiting email confirmation. Skipping profile insert.");
@@ -188,6 +156,27 @@ useEffect(() => {
     } 
   };
 
+
+  const handleGoogleAuth = async (): Promise<void> => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // redirectTo: window.location.origin,
+           scopes: 'profile email',
+        },
+      })
+      if (error) {
+        console.error('Google login error:', error.message);
+        // alert("google sign in failed")
+        toast({
+        title: 'Authentication failed',
+        description: 'Google Sing In Failed',
+        variant: 'destructive'
+      });
+      }
+        // return true;
+    }
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -202,7 +191,8 @@ useEffect(() => {
   isLoading,
   login,
   register,
-  logout
+  logout,
+  handleGoogleAuth
   }}>
   {children}
   </AuthContext.Provider>
