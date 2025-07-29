@@ -67,7 +67,8 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-1">
+          <nav className="hidden lg:flex space-x-2">
+            {/* //hidden md:flex */}
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -87,7 +88,7 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  <span>{tab.label}</span>
+                  <span className=''>{tab.label}</span>
                 </button>
               );
             })}
@@ -100,7 +101,7 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="hidden sm:flex h-8 w-8 p-0"
+              className="flex h-6 w-6 p-0"
             >
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
@@ -112,8 +113,7 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
             </Button>
 
               {/* Currency Display */}
-            <div className="hidden sm:flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-300">
-              {/* <span>{currentCurrency.symbol}</span> */}
+            <div className="hidden lg:flex items-center space-x- text-sm text-gray-600 dark:text-gray-300">
               <span>{currentCurrency.code}</span>
             </div>
 
@@ -122,13 +122,13 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
               variant="outline" 
               size="sm" 
               onClick={logout}
-              className="hidden sm:flex items-center space-x- text-red-600 border-red-200 dark:border-red-500 hover:bg-red-50 dark:hover:bg-red-800"
+              className="hidden lg:flex items-center space-x- text-red-600 border-red-200 dark:border-red-500 hover:bg-red-50 dark:hover:bg-red-800"
             >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
             </Button>
 
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <img
@@ -156,13 +156,13 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
 
             {/* Mobile menu button */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -194,6 +194,11 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
                   </button>
                 );
               })}
+              
+              {/* Currency Display */}
+              <div className="w-full flex items-center space-x- px-4 py-2  text-sm text-gray-600 dark:text-gray-300">
+                <span>{currentCurrency.code}</span>
+              </div>
               <Button 
                 variant="outline" 
                 size="sm" 
