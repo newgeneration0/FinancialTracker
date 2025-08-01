@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -13,9 +13,15 @@ interface GoalsSectionProps {
 }
 
 const GoalsSection = ({ detailed = false }: GoalsSectionProps) => {
-  const { goals, updateGoal, deleteGoal } = useFinancial();
+  const { goals, updateGoal, deleteGoal, fetchGoals } = useFinancial();
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [contributionAmount, setContributionAmount] = useState('');
+
+  
+
+useEffect(() => {
+  fetchGoals();
+}, [fetchGoals]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

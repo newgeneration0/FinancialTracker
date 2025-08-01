@@ -64,23 +64,59 @@ const QuickActions = () => {
     setIsAddingTransaction(false);
   };
 
-  const handleAddGoal = (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleAddGoal = (e: React.FormEvent) => {
+  //   e.preventDefault();
     
-    if (!goalForm.name || !goalForm.targetAmount || !goalForm.targetDate) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  //   if (!goalForm.name || !goalForm.targetAmount || !goalForm.targetDate) {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Please fill in all required fields.',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
 
-    addGoal({
-      ...goalForm,
+  //   addGoal({
+  //     ...goalForm,
+  //     targetAmount: parseFloat(goalForm.targetAmount),
+  //     currentAmount: 0,
+  //   });
+
+  //   toast({
+  //     title: 'Success',
+  //     description: 'Savings goal created successfully!',
+  //   });
+
+  //   setGoalForm({
+  //     name: '',
+  //     targetAmount: '',
+  //     targetDate: '',
+  //     category: 'savings',
+  //   });
+  //   setIsAddingGoal(false);
+  // };
+
+  const handleAddGoal = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!goalForm.name || !goalForm.targetAmount || !goalForm.targetDate) {
+    toast({
+      title: 'Error',
+      description: 'Please fill in all required fields.',
+      variant: 'destructive',
+    });
+    return;
+  }
+
+  try {
+    await addGoal({
+      name: goalForm.name,
       targetAmount: parseFloat(goalForm.targetAmount),
+      targetDate: goalForm.targetDate,
+      category: goalForm.category || 'savings', // or default value
       currentAmount: 0,
     });
+
 
     toast({
       title: 'Success',
@@ -94,7 +130,23 @@ const QuickActions = () => {
       category: 'savings',
     });
     setIsAddingGoal(false);
-  };
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+    toast({
+      title: 'Error creating goal',
+      description: err.message || 'Something went wrong.',
+      variant: 'destructive',
+    });
+  } else {
+    toast({
+      title: 'Error creating goal',
+      description: 'Something went wrong.',
+      variant: 'destructive',
+    });
+  }
+}
+};
+
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md">

@@ -112,7 +112,7 @@ const TransactionList = () => {
         {/* Transaction List */}
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {filteredTransactions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-muted-foreground">
               <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p className="text-lg font-medium">No transactions found</p>
               <p className="text-sm">Start by adding your first transaction above</p>
@@ -135,7 +135,7 @@ const TransactionList = () => {
                       <TrendingDown className="h-4 w-4" />
                     )}
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="font-medium text-gray-900 dark:text-white text-sm">
                       {transaction.description || transaction.category}
                     </p>
@@ -147,7 +147,22 @@ const TransactionList = () => {
                         <span>{formatDate(transaction.date)}</span>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
+                  <div className="space-y-1">
+  <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
+    {transaction.description || transaction.category}
+  </p>
+  
+  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+    <span className="truncate max-w-[100px]">{transaction.category}</span>
+    <span>•</span>
+    <div className="flex items-center space-x-1">
+      <Calendar className="h-3 w-3" />
+      <span className="truncate">{formatDate(transaction.date)}</span>
+    </div>
+  </div>
+</div>
+
                 </div>
                 
                 <div className="flex items-center space-x-3">

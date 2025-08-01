@@ -1,7 +1,8 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../components/auth/supabaseClient'
+// import { faker } from '@faker-js/faker';
 
 export interface Transaction {
   id: string;
@@ -39,6 +40,7 @@ interface FinancialContextType {
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
   addGoal: (goal: Omit<SavingsGoal, 'id'>) => void;
+  fetchGoals: () => void;
   updateGoal: (id: string, amount: number) => void;
   deleteGoal: (id: string) => void;
   addBudget: (budget: Omit<Budget, 'id' | 'spent'>) => void;
@@ -46,6 +48,8 @@ interface FinancialContextType {
   deleteBudget: (id: string) => void;
   fetchBudgets : (id: string) => void;
   recalculateBudgets : (id: string) => void;
+  // createFakeLastMonthTransactions: (user_id: string, count?: number) => Promise<void>~
+ calculateMonthlyChange: (type: 'income' | 'expense' | 'balance') => number | null;
 }
 
 const FinancialContext = createContext<FinancialContextType | undefined>(undefined);
@@ -55,6 +59,12 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const { user } = useAuth();
+
+//   useEffect(() => {
+//   if (user) {
+//     createFakeLastMonthTransactions(user.id, 10); // Creates 10 fake last month transactions
+//   }
+// }, [user]);
 
 
   useEffect(() => {
@@ -73,21 +83,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
         setTransactions(transactionData || []);
       }
 
-       // also update budgets from Supabase
-      //  await fetchBudgets();
       fetchBudgets();
-
-      // Fetch savings goals
-      // const { data: goalData, error: goalError } = await supabase
-      //   .from('savings_goals')
-      //   .select('*')
-      //   .eq('user_id', user.id);
-
-      // if (goalError) {
-      //   console.error('Error fetching goals:', goalError.message);
-      // } else {
-      //   setGoals(goalData || []);
-      // }
 
     };
 
@@ -133,6 +129,9 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     .reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalIncome - totalExpenses;
+
+  //fake
+
 
 
   {/** TRANSACTIONS SECTION */}
@@ -188,49 +187,170 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
           : budget
       ));
     }
-
     // Update local state
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
 
-  {/** GOALS SECTION */}
-  const addGoal = (goal: Omit<SavingsGoal, 'id'>) => {
-    const newGoal: SavingsGoal = {
-      ...goal,
-      id: Date.now().toString()
-    };
-    setGoals(prev => [...prev, newGoal]);
-  };
+  //fake fake
+//   const createFakeLastMonthTransactions = async (user_id: string, count = 5) => {
+//   const lastMonth = new Date();
+//   lastMonth.setMonth(lastMonth.getMonth() - 1);
 
-//   const addGoal = async (goal: Omit<SavingsGoal, 'id'>) => {
-//   const { data, error } = await supabase
-//     .from('savings_goals')
-//     .insert([{ ...goal, user_id: user?.id }])
-//     .select()
-//     .single();
+//   const fakeTransactions =  Array.from({ length: count }, (_, i) => ({
+//     id: crypto.randomUUID(),
+//     user_id,
+//     // name: `Fake Transaction ${i + 1}`,
+//     amount: Math.floor(Math.random() * 5000) + 1000,
+//     type: Math.random() > 0.5 ? 'income' : 'expense',
+//     category: faker.commerce.department(),
+//     created_at: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), Math.floor(Math.random() * 28) + 1).toISOString(),
+//   }));
 
-//   if (error) {
-//     console.error('Error adding goal:', error.message);
-//     return;
-//   }
-
-//   // setGoals(prev => [...prev, data]);
-//   setGoals(prev => [...prev, data]);
+//   const { error } = await supabase.from('transactions').insert(fakeTransactions);
+//   if (error) console.error('Error creating fake transactions:', error.message);
+//   else console.log(`✅ Created ${count} fake transactions from last month.`);
 // };
 
 
-  const updateGoal = (id: string, amount: number) => {
-    setGoals(prev => prev.map(goal => 
-      goal.id === id 
-        ? { ...goal, currentAmount: Math.min(goal.targetAmount, goal.currentAmount + amount) }
-        : goal
-    ));
+
+  {/** GOALS SECTION */}
+  const addGoal = async (goal: Omit<SavingsGoal, 'id'>) => {
+    const {
+      name,
+      targetAmount,
+      targetDate,
+      category,
+      currentAmount
+    } = goal;
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error('Not authenticated');
+    }
+
+    const { data, error } = await supabase.from('savings_goals').insert([
+      {
+        user_id: user.id,
+        name,
+        target_amount: targetAmount,
+        target_date: targetDate,
+        category,
+        current_amount: currentAmount ?? 0,
+      }
+    ]).select(); // select() returns the inserted row
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const newGoalFromSupabase = {
+      id: data[0].id,
+      name: data[0].name,
+      targetAmount: data[0].target_amount,
+      targetDate: data[0].target_date,
+      currentAmount: data[0].current_amount,
+      category: data[0].category,
+    };
+
+    setGoals(prev => [...prev, newGoalFromSupabase]);
   };
 
-  const deleteGoal = (id: string) => {
+
+
+  const fetchGoals = async () => {
+    const { data, error } = await supabase
+      .from('savings_goals')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching goals:', error.message);
+      return;
+    }
+
+    if (data) {
+      const cleanedGoals = data
+        .map(goal => {
+          const targetAmount = parseFloat(goal.target_amount);
+          const currentAmount = parseFloat(goal.current_amount);
+
+          // Check for valid numbers
+          if (isNaN(targetAmount) || isNaN(currentAmount)) {
+            console.warn("Invalid amount, skipping:", goal);
+            return null;
+          }
+
+          // Validate and convert targetDate
+          const isValidDate = goal.target_date && !isNaN(Date.parse(goal.target_date));
+          if (!isValidDate) {
+            console.warn("Invalid or missing targetDate, skipping:", goal);
+            return null;
+          }
+
+          return {
+            id: goal.id,
+            name: goal.name,
+            targetAmount,
+            currentAmount,
+            targetDate: new Date(goal.target_date).toISOString(),
+            category: goal.category || 'savings', // fallback
+            user_id: goal.user_id,
+            is_completed: currentAmount >= targetAmount,
+          };
+        })
+        .filter(Boolean); // removes any nulls
+
+      setGoals(cleanedGoals);
+    }
+  };
+
+
+  const updateGoal = async (id: string, amount: number) => {
+    // Find the existing goal
+    const goalToUpdate = goals.find(goal => goal.id === id);
+    if (!goalToUpdate) return;
+
+    const newAmount = Math.min(goalToUpdate.targetAmount, goalToUpdate.currentAmount + amount);
+
+    // Update in Supabase
+    const { error } = await supabase
+      .from('savings_goals')
+      .update({ current_amount: newAmount })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Failed to update goal in Supabase:', error.message);
+      return;
+    }
+
+    // Update in local state
+    setGoals(prev =>
+      prev.map(goal =>
+        goal.id === id
+          ? { ...goal, currentAmount: newAmount }
+          : goal
+      )
+    );
+  };
+
+
+  const deleteGoal = async (id: string) => {
+    const { error } = await supabase
+      .from('savings_goals')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting goal from Supabase:', error.message);
+      return;
+    }
+
+    // Update local state
     setGoals(prev => prev.filter(g => g.id !== id));
   };
+
 
   {/** BUDGETS SECTION */}
   // ADD BUDGET
@@ -294,6 +414,89 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     setBudgets(updatedBudgets);
   };
 
+  // const calculateMonthlyChange = (transactions: Transaction[]) => {
+  //   const now = new Date();
+  //   const thisMonth = now.getMonth();
+  //   const lastMonth = (thisMonth - 1 + 12) % 12;
+  //   const thisYear = now.getFullYear();
+  //   const lastMonthYear = lastMonth === 11 ? thisYear - 1 : thisYear;
+
+  //   const thisMonthTotal = transactions
+  //     .filter((tx) => {
+  //       const txDate = new Date(tx.date);
+  //       return txDate.getMonth() === thisMonth && txDate.getFullYear() === thisYear;
+  //     })
+  //     .reduce((sum, tx) => sum + tx.amount, 0);
+
+  //   const lastMonthTotal = transactions
+  //     .filter((tx) => {
+  //       const txDate = new Date(tx.date);
+  //       return txDate.getMonth() === lastMonth && txDate.getFullYear() === lastMonthYear;
+  //     })
+  //     .reduce((sum, tx) => sum + tx.amount, 0);
+
+  //   if (lastMonthTotal === 0) return null;
+
+  //   const change = ((thisMonthTotal - lastMonthTotal) / Math.abs(lastMonthTotal)) * 100;
+  //   return Math.round(change);
+  // };
+
+
+  const calculateMonthlyChange = (type: 'income' | 'expense' | 'balance') => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+  let thisMonthTotal = 0;
+  let lastMonthTotal = 0;
+
+  transactions.forEach((transaction) => {
+    const date = new Date(transaction.date);
+    const month = date.getMonth();
+    const year = date.getFullYear();
+
+    if (type === 'income' && transaction.type === 'income') {
+      if (month === currentMonth && year === currentYear) {
+        thisMonthTotal += transaction.amount;
+      } else if (month === lastMonth && year === lastMonthYear) {
+        lastMonthTotal += transaction.amount;
+      }
+    } else if (type === 'expense' && transaction.type === 'expense') {
+      if (month === currentMonth && year === currentYear) {
+        thisMonthTotal += transaction.amount;
+      } else if (month === lastMonth && year === lastMonthYear) {
+        lastMonthTotal += transaction.amount;
+      }
+    }
+  });
+
+  if (type === 'balance') {
+    thisMonthTotal = totalIncome - totalExpenses;
+    // Calculate last month's balance manually if needed
+    const thisMonth = new Date();
+    const lastMonthStart = new Date(thisMonth.getFullYear(), thisMonth.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
+
+    lastMonthTotal = transactions
+      .filter((t) => {
+        const date = new Date(t.date);
+        return date >= lastMonthStart && date <= lastMonthEnd;
+      })
+      .reduce((acc, t) => {
+        return t.type === 'income' ? acc + t.amount : acc - t.amount;
+      }, 0);
+  }
+
+  if (lastMonthTotal === 0) return null;
+
+  const change = ((thisMonthTotal - lastMonthTotal) / Math.abs(lastMonthTotal)) * 100;
+  return change;
+};
+
+
   return (
     <FinancialContext.Provider value={{
       transactions,
@@ -305,6 +508,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       addTransaction,
       deleteTransaction,
       addGoal,
+      fetchGoals,
       updateGoal,
       deleteGoal,
       addBudget,
@@ -312,6 +516,8 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       deleteBudget,
       fetchBudgets,
       recalculateBudgets,
+      calculateMonthlyChange,
+      // createFakeLastMonthTransactions
     }}>
       {children}
     </FinancialContext.Provider>

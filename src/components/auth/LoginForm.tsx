@@ -35,7 +35,7 @@ const LoginForm = () => {
     if(isAuthenticated) {
       navigate('/', { replace: true });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

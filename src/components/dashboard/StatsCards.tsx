@@ -1,15 +1,26 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { useFinancial } from '../../contexts/FinancialContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { TrendingUp, TrendingDown, Wallet, Target } from 'lucide-react';
 
 const StatsCards = () => {
-  const { totalIncome, totalExpenses, balance, goals } = useFinancial();
+  const { totalIncome, totalExpenses, balance, goals, calculateMonthlyChange  } = useFinancial();
   const { formatCurrency } = useCurrency();
+  // const balanceChange = calculateMonthlyChange('balance');
+  // const incomeChange = calculateMonthlyChange('income');
+  // const expenseChange = calculateMonthlyChange('expense');
+  const incomeChange = useMemo(() => calculateMonthlyChange('income'), [calculateMonthlyChange]);
+  const expenseChange = useMemo(() => calculateMonthlyChange('expense'), [calculateMonthlyChange]);
+  const balanceChange = useMemo(() => calculateMonthlyChange('balance'), [calculateMonthlyChange]);
 
   const totalGoalsAmount = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
+
+
+//   console.log('Income change:', incomeChange);
+// console.log('Expense change:', expenseChange);
+// console.log('Balance change:', balanceChange);
 
   const stats = [
     {
@@ -19,6 +30,7 @@ const StatsCards = () => {
       trend: balance >= 0 ? 'up' : 'down',
       color: balance >= 0 ? 'text-green-600 dark:text-green-700' : 'text-red-600 dark:text-red-400',
       bgColor: balance >= 0 ? 'bg-green-100 dark:bg-green-400' : 'bg-red-100 dark:bg-red-400',
+      percentageChange: balanceChange,
     },
     {
       title: 'Total Income',
@@ -67,7 +79,7 @@ const StatsCards = () => {
                   <Icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
               </div>
-              <div className="mt-4 flex items-center text-sm">
+              {/* <div className="mt-4 flex items-center text-sm">
                 <span className={`flex items-center ${stat.color}`}>
                   {stat.trend === 'up' ? (
                     <TrendingUp className="h-4 w-4 mr-1" />
@@ -77,7 +89,20 @@ const StatsCards = () => {
                   {Math.floor(Math.random() * 15) + 5}%
                 </span>
                 <span className="text-gray-500 ml-2">vs last month</span>
-              </div>
+              </div> */}
+              <div className="mt-4 flex items-center text-sm">
+  <span className={`flex items-center ${stat.color}`}>
+    {stat.trend === 'up' ? (
+      <TrendingUp className="h-4 w-4 mr-1" />
+    ) : (
+      <TrendingDown className="h-4 w-4 mr-1" />
+    )}
+    {stat.percentageChange !== null && stat.percentageChange !== undefined
+      ? `${stat.percentageChange.toFixed(1)}%`
+      : '–'}
+  </span>
+  <span className="text-gray-500 ml-2">vs last month</span>
+</div>
             </CardContent>
           </Card>
         );
