@@ -20,6 +20,7 @@ export interface SavingsGoal {
   currentAmount: number;
   targetDate: string;
   category: string;
+  created_at?: string;
 }
 
 export interface Budget {
@@ -28,6 +29,12 @@ export interface Budget {
   limit: number;
   spent: number;
   period: 'monthly' | 'weekly';
+}
+interface SavingsGoalProgress {
+  id: string;
+  goal_id: string;
+  current_amount: number;
+  date: string; // ISO date
 }
 
 interface FinancialContextType {
@@ -48,8 +55,8 @@ interface FinancialContextType {
   deleteBudget: (id: string) => void;
   fetchBudgets : (id: string) => void;
   recalculateBudgets : (id: string) => void;
-  // createFakeLastMonthTransactions: (user_id: string, count?: number) => Promise<void>~
- calculateMonthlyChange: (type: 'income' | 'expense' | 'balance') => number | null;
+  calculateMonthlyChange: (type: 'income' | 'expense' | 'balance') => number | null;
+  calculateSavingsChange: () => number | null;
 }
 
 const FinancialContext = createContext<FinancialContextType | undefined>(undefined);
@@ -59,13 +66,6 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const { user } = useAuth();
-
-//   useEffect(() => {
-//   if (user) {
-//     createFakeLastMonthTransactions(user.id, 10); // Creates 10 fake last month transactions
-//   }
-// }, [user]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,6 +88,8 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     };
 
     fetchData();
+
+    
   }, [user]);
 
    //to run recalculateBudgets whenever transactions or budgets change
@@ -129,10 +131,6 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     .reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalIncome - totalExpenses;
-
-  //fake
-
-
 
   {/** TRANSACTIONS SECTION */}
   // ADD TRANSACTION
@@ -192,28 +190,6 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
   };
 
 
-  //fake fake
-//   const createFakeLastMonthTransactions = async (user_id: string, count = 5) => {
-//   const lastMonth = new Date();
-//   lastMonth.setMonth(lastMonth.getMonth() - 1);
-
-//   const fakeTransactions =  Array.from({ length: count }, (_, i) => ({
-//     id: crypto.randomUUID(),
-//     user_id,
-//     // name: `Fake Transaction ${i + 1}`,
-//     amount: Math.floor(Math.random() * 5000) + 1000,
-//     type: Math.random() > 0.5 ? 'income' : 'expense',
-//     category: faker.commerce.department(),
-//     created_at: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), Math.floor(Math.random() * 28) + 1).toISOString(),
-//   }));
-
-//   const { error } = await supabase.from('transactions').insert(fakeTransactions);
-//   if (error) console.error('Error creating fake transactions:', error.message);
-//   else console.log(`✅ Created ${count} fake transactions from last month.`);
-// };
-
-
-
   {/** GOALS SECTION */}
   const addGoal = async (goal: Omit<SavingsGoal, 'id'>) => {
     const {
@@ -256,7 +232,6 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
 
     setGoals(prev => [...prev, newGoalFromSupabase]);
   };
-
 
 
   const fetchGoals = async () => {
@@ -414,34 +389,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     setBudgets(updatedBudgets);
   };
 
-  // const calculateMonthlyChange = (transactions: Transaction[]) => {
-  //   const now = new Date();
-  //   const thisMonth = now.getMonth();
-  //   const lastMonth = (thisMonth - 1 + 12) % 12;
-  //   const thisYear = now.getFullYear();
-  //   const lastMonthYear = lastMonth === 11 ? thisYear - 1 : thisYear;
-
-  //   const thisMonthTotal = transactions
-  //     .filter((tx) => {
-  //       const txDate = new Date(tx.date);
-  //       return txDate.getMonth() === thisMonth && txDate.getFullYear() === thisYear;
-  //     })
-  //     .reduce((sum, tx) => sum + tx.amount, 0);
-
-  //   const lastMonthTotal = transactions
-  //     .filter((tx) => {
-  //       const txDate = new Date(tx.date);
-  //       return txDate.getMonth() === lastMonth && txDate.getFullYear() === lastMonthYear;
-  //     })
-  //     .reduce((sum, tx) => sum + tx.amount, 0);
-
-  //   if (lastMonthTotal === 0) return null;
-
-  //   const change = ((thisMonthTotal - lastMonthTotal) / Math.abs(lastMonthTotal)) * 100;
-  //   return Math.round(change);
-  // };
-
-
+  //To get the Percentage vs last month
   const calculateMonthlyChange = (type: 'income' | 'expense' | 'balance') => {
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -488,15 +436,49 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       .reduce((acc, t) => {
         return t.type === 'income' ? acc + t.amount : acc - t.amount;
       }, 0);
-  }
+    }
 
-  if (lastMonthTotal === 0) return null;
+    if (lastMonthTotal === 0) return 100;
 
-  const change = ((thisMonthTotal - lastMonthTotal) / Math.abs(lastMonthTotal)) * 100;
-  return change;
-};
+    const change = ((thisMonthTotal - lastMonthTotal) / Math.abs(lastMonthTotal)) * 100;
+    return change;
+  };
+
+  const calculateSavingsChange = (): number | null => {
+    if (!user || goals.length === 0) return null;
+
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const lastMonthDate = new Date(thisYear, thisMonth - 1, 1);
+    const lastMonth = lastMonthDate.getMonth();
+    const lastMonthYear = lastMonthDate.getFullYear();
+
+    let currentMonthTotal = 0;
+    let previousMonthTotal = 0;
+
+    for (const goal of goals) {
+      const createdAt = new Date(goal.created_at);
+      const goalMonth = createdAt.getMonth();
+      const goalYear = createdAt.getFullYear();
+
+      if (goalMonth === thisMonth && goalYear === thisYear) {
+        currentMonthTotal += goal.currentAmount;
+      } else if (goalMonth === lastMonth && goalYear === lastMonthYear) {
+        previousMonthTotal += goal.currentAmount;
+      }
+    }
+
+    if (previousMonthTotal === 0) {
+      return currentMonthTotal > 0 ? 100 : 0;
+    }
+
+    return ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+  };
 
 
+
+ 
   return (
     <FinancialContext.Provider value={{
       transactions,
@@ -517,7 +499,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       fetchBudgets,
       recalculateBudgets,
       calculateMonthlyChange,
-      // createFakeLastMonthTransactions
+      calculateSavingsChange,
     }}>
       {children}
     </FinancialContext.Provider>

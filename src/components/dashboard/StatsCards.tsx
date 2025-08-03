@@ -6,21 +6,14 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { TrendingUp, TrendingDown, Wallet, Target } from 'lucide-react';
 
 const StatsCards = () => {
-  const { totalIncome, totalExpenses, balance, goals, calculateMonthlyChange  } = useFinancial();
+  const { totalIncome, totalExpenses, balance, goals, calculateMonthlyChange } = useFinancial();
   const { formatCurrency } = useCurrency();
-  // const balanceChange = calculateMonthlyChange('balance');
-  // const incomeChange = calculateMonthlyChange('income');
-  // const expenseChange = calculateMonthlyChange('expense');
-  const incomeChange = useMemo(() => calculateMonthlyChange('income'), [calculateMonthlyChange]);
-  const expenseChange = useMemo(() => calculateMonthlyChange('expense'), [calculateMonthlyChange]);
-  const balanceChange = useMemo(() => calculateMonthlyChange('balance'), [calculateMonthlyChange]);
+  const balanceChange = calculateMonthlyChange('balance');
+  const incomeChange = calculateMonthlyChange('income');
+  const expenseChange = calculateMonthlyChange('expense');
 
   const totalGoalsAmount = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
 
-
-//   console.log('Income change:', incomeChange);
-// console.log('Expense change:', expenseChange);
-// console.log('Balance change:', balanceChange);
 
   const stats = [
     {
@@ -39,6 +32,7 @@ const StatsCards = () => {
       trend: 'up',
       color: 'text-green-600 dark:text-green-700',
       bgColor: 'bg-green-100 dark:bg-green-400',
+      percentageChange: incomeChange,
     },
     {
       title: 'Total Expenses',
@@ -47,6 +41,7 @@ const StatsCards = () => {
       trend: 'down',
       color: 'text-red-600 dark:text-red-700',
       bgColor: 'bg-red-100 dark:bg-red-400',
+      percentageChange: expenseChange,
     },
     {
       title: 'Savings Goals',
@@ -57,6 +52,7 @@ const StatsCards = () => {
       bgColor: 'bg-blue-100 dark:bg-blue-400',
       // subtext: `${formatCurrency(totalSaved)} of ${formatCurrency(totalSavingsGoals)}`,
     },
+
   ];
 
   return (
@@ -91,18 +87,18 @@ const StatsCards = () => {
                 <span className="text-gray-500 ml-2">vs last month</span>
               </div> */}
               <div className="mt-4 flex items-center text-sm">
-  <span className={`flex items-center ${stat.color}`}>
-    {stat.trend === 'up' ? (
-      <TrendingUp className="h-4 w-4 mr-1" />
-    ) : (
-      <TrendingDown className="h-4 w-4 mr-1" />
-    )}
-    {stat.percentageChange !== null && stat.percentageChange !== undefined
-      ? `${stat.percentageChange.toFixed(1)}%`
-      : '–'}
-  </span>
-  <span className="text-gray-500 ml-2">vs last month</span>
-</div>
+                <span className={`flex items-center ${stat.color}`}>
+                  {stat.trend === 'up' ? (
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 mr-1" />
+                  )}
+                  {stat.percentageChange !== null && stat.percentageChange !== undefined
+                    ? `${stat.percentageChange.toFixed(1)}%`
+                    : '–'}
+                </span>
+                <span className="text-gray-500 ml-2">vs last month</span>
+              </div>
             </CardContent>
           </Card>
         );

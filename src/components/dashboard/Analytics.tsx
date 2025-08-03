@@ -27,10 +27,11 @@ import {
   Activity,
   Download 
 } from 'lucide-react';
+import MonthlyIncomeVsExpenses from '../ui/MonthlyIncomeVsExpenses';
 
 const Analytics = () => {
   const { transactions } = useFinancial();
-  const [chartType, setChartType] = useState('overview');
+  const [chartType, setChartType] = useState('net');
   const [period, setPeriod] = useState('month');
 
   // Process data for charts
@@ -188,6 +189,12 @@ const Analytics = () => {
             </div>
           </div>
         );
+
+        case 'net':
+          return (
+            <MonthlyIncomeVsExpenses />
+          ) 
+
       
       default:
         return null;
@@ -260,6 +267,7 @@ const Analytics = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="net">Income Vs Expenses</SelectItem>
                   <SelectItem value="overview">Overview</SelectItem>
                   <SelectItem value="trends">Trends</SelectItem>
                   <SelectItem value="expenses">Expense Breakdown</SelectItem>
