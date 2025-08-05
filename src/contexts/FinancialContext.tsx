@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../components/auth/supabaseClient'
+import { SendNotification } from '@/lib/SendNotification';
 
 export interface Transaction {
   id: string;
@@ -150,15 +150,55 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
 
     setTransactions(prev => [data, ...prev]);
 
+    
+    const amountFormatted = `₦${data.amount.toLocaleString()}`;
+
+    // Send a notification after adding the transaction
+    await SendNotification({
+        userId: user!.id,
+        title: 'Transaction Recorded',
+        message: `${data.type === 'income' ? 'Received' : 'Spent'} ${amountFormatted} for ${data.category}`,
+        type: 'transaction',
+    });
+
    // If it's an expense, update the corresponding budget
     if (data.type === 'expense') {
       const matchedBudget = budgets.find(b => b.category === data.category);
       if (matchedBudget) {
         const newSpent = matchedBudget.spent + data.amount;
         updateBudget(matchedBudget.id, { spent: newSpent });
+
+        const limit = matchedBudget.limit;
+        const percentUsedBefore = matchedBudget.spent / limit;
+        const percentUsedNow = newSpent / limit;
+
+        // ⚠️ Nearing limit (crossed 90%)
+        if (
+          percentUsedBefore < 0.9 &&
+          percentUsedNow >= 0.9 &&
+          percentUsedNow < 1
+        ) {
+          await SendNotification({
+            userId: user!.id,
+            title: 'Almost Over Budget',
+            message: `You've used 90% of your ₦${limit.toLocaleString()} "${matchedBudget.category}" budget.`,
+            type: 'budget',
+          });
+        }
+
+        // ✅ Budget limit exceeded notification
+        if (newSpent > matchedBudget.limit) {
+          await SendNotification({
+            userId: user!.id,
+            title: 'Budget Exceeded',
+            message: `You exceeded your ₦${matchedBudget.limit.toLocaleString()} limit for "${matchedBudget.category}".`,
+            type: 'budget',
+          });
+        }
       }
     }
   };
+
 
   //DELETE TRANSACTION
   const deleteTransaction = async (id: string) => {
@@ -231,6 +271,14 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     };
 
     setGoals(prev => [...prev, newGoalFromSupabase]);
+
+    // ✅ Send in-app notification
+    await SendNotification({
+      userId: user.id,
+      title: 'Savings Goal Added',
+      message: `You've added a new goal: "${name}" for ₦${targetAmount.toLocaleString()}`,
+      type: 'goal'
+    });
   };
 
 
@@ -334,7 +382,17 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       { ...budget, user_id: user.id }
     ]);
     if (error) console.error(error);
-    else fetchBudgets(); // Refresh list
+    else {
+      //Send notification
+      await SendNotification({
+        userId: user.id,
+        title: 'Budget Created',
+        message: `You set a budget for "${budget.category}" with a limit of ₦${budget.limit.toLocaleString()}`,
+        type: 'budget'
+      });
+
+      fetchBudgets(); // Refresh list
+    }
   };
 
   // UPDATE BUDGET

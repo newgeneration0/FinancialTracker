@@ -13,6 +13,7 @@ import BudgetOverview from './BudgetOverview';
 import SocialFeatures from './SocialFeatures';
 import UserProfile from './UserProfile';
 import RecurringTransactions from './RecurringTransaction';
+import Notification from './Notification';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -30,16 +31,12 @@ const Dashboard = () => {
               <div className="lg:col-span-2 space-y-6">
                 <QuickActions />
                 <TransactionList />
-                {/* <TransactionList /> */}
               </div>
               <div className="space-y-6">
                 <DailyTip />
                 <GoalsSection />
                 <BudgetOverview />
               </div>
-              {/* <div className='space-y-6'>
-                <BudgetOverview />
-              </div> */}
             </div>
           </div>
         );
@@ -55,6 +52,8 @@ const Dashboard = () => {
         return <UserProfile />;
       case 'recurringTransactions' :
         return <RecurringTransactions />;
+      case 'notification' :
+        return <Notification />
       default:
         return (
           <div className="space-y-6">

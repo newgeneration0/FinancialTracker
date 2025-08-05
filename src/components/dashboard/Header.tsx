@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -45,11 +44,11 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
     { id: 'overview', label: 'Overview', icon: Home, route: '/' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
     { id: 'recurringTransactions', label: 'Recurring', icon: Receipt },
-    // { id: 'goals', label: 'Goals', icon: Target, route: '/goals' },
     { id: 'insights', label: 'Insights', icon: Lightbulb, route: '/insights' },
-    // { id: 'social', label: 'Social', icon: Users, route: '/socials' },
     { id: 'profile', label: 'Profile', icon: User, route: '/profile'},
   ];
+
+  
 
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
@@ -105,7 +104,15 @@ const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
             >
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" className="relative">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative"
+              key={'notification'}
+              onClick={()=> {
+                setActiveTab('notification')
+              }}
+            >
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                 3
