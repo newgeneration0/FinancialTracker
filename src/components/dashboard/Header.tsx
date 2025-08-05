@@ -31,9 +31,10 @@ import {
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  unreadCount: number;
 }
 
-const Header = ({ activeTab, setActiveTab}: HeaderProps) => {
+const Header = ({ activeTab, setActiveTab, unreadCount}: HeaderProps) => {
   const { user, logout } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const { currentCurrency } = useCurrency();
@@ -41,6 +42,8 @@ const Header = ({ activeTab, setActiveTab}: HeaderProps) => {
   const navigate = useNavigate();
   // const [unreadCount, setUnreadCount] = useState(0);
   
+  console.log('Header unreadCount:', unreadCount);
+
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Home, route: '/' },
@@ -49,9 +52,7 @@ const Header = ({ activeTab, setActiveTab}: HeaderProps) => {
     { id: 'insights', label: 'Insights', icon: Lightbulb, route: '/insights' },
     { id: 'profile', label: 'Profile', icon: User, route: '/profile'},
   ];
-
   
-
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,9 +117,11 @@ const Header = ({ activeTab, setActiveTab}: HeaderProps) => {
               }}
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                3
-              </span>
+              {unreadCount > 0 && (
+                <span className='absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none min-w-[1rem] text-center'>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </Button>
 
               {/* Currency Display */}

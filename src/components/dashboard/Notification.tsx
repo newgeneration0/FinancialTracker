@@ -2,33 +2,9 @@ import { useEffect, useState, useContext } from 'react';
 import { supabase } from '../../components/auth/supabaseClient'
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function Notification() {
-//   const { user } = useContext(AuthContext);
+export default function Notification({ notifications, fetchNotifications }) {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  const fetchNotifications = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (!error) {
-        setNotifications(data);
-        const unread = data.filter(n => !n.is_read).length;
-        setUnreadCount(unread);
-    }    
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (user?.id) fetchNotifications();
-  }, [user]);
-
+  
   // MARK SINGLE NOTIFICATION AS READ
   const markAsRead = async (id) => {
     await supabase
@@ -60,32 +36,29 @@ export default function Notification() {
           </button>
         )}
       </div>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : notifications.length === 0 ? (
-        <p>No notifications yet.</p>
-      ) : (
-        <div className="space-y-4">
-          {notifications.map((n) => (
-            <div
-              key={n.id}
-              onClick={() => !n.is_read && markAsRead(n.id)}
-              className={`p-4 rounded border shadow-sm cursor-pointer transition ${
-                n.is_read
-                  ? 'bg-gray-100 dark:bg-gray-800'
-                  : 'bg-blue-50 dark:bg-blue-900'
-              }`}
-            >
-              <strong className="block">{n.title}</strong>
-              <p className="text-sm">{n.message}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {new Date(n.created_at).toLocaleString()}
-              </p>
+        {notifications.length === 0 ? (
+            <p>No notifications yet.</p>
+            ) : (
+            <div className="space-y-4">
+                {notifications.map((n) => (
+                <div
+                    key={n.id}
+                    onClick={() => !n.is_read && markAsRead(n.id)}
+                    className={`p-4 rounded border shadow-sm cursor-pointer transition ${
+                    n.is_read
+                        ? 'bg-gray-100 dark:bg-gray-800'
+                        : 'bg-blue-50 dark:bg-blue-900'
+                    }`}
+                >
+                    <strong className="block">{n.title}</strong>
+                    <p className="text-sm">{n.message}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                    {new Date(n.created_at).toLocaleString()}
+                    </p>
+                </div>
+                ))}
             </div>
-          ))}
-        </div>
-      )}
+        )}
     </div>
   );
 }

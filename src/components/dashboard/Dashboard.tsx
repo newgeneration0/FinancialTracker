@@ -22,6 +22,49 @@ const Dashboard = () => {
   const { user } = useAuth();
   const firstName = user?.firstName || localStorage.getItem('firstName') || 'Friend';
   const { balance, totalIncome, totalExpenses } = useFinancial();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchNotifications = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+  
+      if (!error) {
+          setNotifications(data);
+          const unread = data.filter(n => !n.is_read).length;
+          console.log('Unread notifications:', unread);
+          setUnreadCount(unread);
+          console.log('Fetched notifications:', data);
+      }    
+      setLoading(false);
+    };
+  
+    useEffect(() => {
+      if (user?.id) fetchNotifications();
+    }, [user]);
+
+     // MARK SINGLE NOTIFICATION AS READ
+      const markAsRead = async (id) => {
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', id);
+        fetchNotifications();
+      };
+    
+      // MARK ALL AS READ
+      const markAllAsRead = async () => {
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('user_id', user.id);
+        fetchNotifications();
+      };
 
   useEffect(() => {
     const checkAndSendDailyReminder = async () => {
@@ -53,7 +96,7 @@ const Dashboard = () => {
 
     checkAndSendDailyReminder();
   }, [user]);
-  
+
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -86,7 +129,7 @@ const Dashboard = () => {
       case 'recurringTransactions' :
         return <RecurringTransactions />;
       case 'notification' :
-        return <Notification />
+        return <Notification  notifications={notifications}  fetchNotifications={fetchNotifications} />
       default:
         return (
           <div className="space-y-6">
@@ -100,8 +143,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transitio-colors duratio-300">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-      
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount}/>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
