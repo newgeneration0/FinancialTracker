@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFinancial } from '../../contexts/FinancialContext';
 import Header from './Header';
@@ -14,6 +14,8 @@ import SocialFeatures from './SocialFeatures';
 import UserProfile from './UserProfile';
 import RecurringTransactions from './RecurringTransaction';
 import Notification from './Notification';
+ import { SendNotification } from '@/lib/SendNotification';
+ import { supabase } from '../auth/supabaseClient';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -21,6 +23,37 @@ const Dashboard = () => {
   const firstName = user?.firstName || localStorage.getItem('firstName') || 'Friend';
   const { balance, totalIncome, totalExpenses } = useFinancial();
 
+  useEffect(() => {
+    const checkAndSendDailyReminder = async () => {
+      if (!user?.id) return;
+
+      // Step 1: Get latest 'reminder' notification
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('created_at')
+        .eq('user_id', user.id)
+        .eq('type', 'reminder')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      const lastSent = data?.created_at?.split('T')[0] ?? null;
+      const today = new Date().toISOString().split('T')[0];
+
+      // Step 2: If not sent today, send it
+      if (lastSent !== today) {
+        await SendNotification({
+          userId: user.id,
+          title: 'Daily Reminder',
+          message: 'Don’t forget to log your expenses or update your savings today!',
+          type: 'reminder',
+        });
+      }
+    };
+
+    checkAndSendDailyReminder();
+  }, [user]);
+  
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':

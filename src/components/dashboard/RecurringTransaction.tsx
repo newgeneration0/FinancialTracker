@@ -10,7 +10,7 @@ import { toast } from '../../hooks/use-toast';
 import { RecurringTransaction } from 'src/types/recurring';
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../auth/supabaseClient';
-// import { useCurrency } from '../../contexts/CurrencyContext';
+import { SendNotification } from '@/lib/SendNotification';
 import { 
   Plus, 
   Calendar, 
@@ -206,9 +206,9 @@ const RecurringTransactions = () => {
 //   };
 
 
-  const executeTransaction = (recurring: RecurringTransaction) => {
+  const executeTransaction = async (recurring: RecurringTransaction) => {
   // Add the actual transaction
-  addTransaction({
+  await addTransaction({
     type: recurring.type,
     amount: recurring.amount,
     category: recurring.category,
@@ -228,6 +228,14 @@ const RecurringTransactions = () => {
         : r
     )
   );
+
+  //Send notification
+  await SendNotification({
+    userId: user!.id, // make sure user is available in scope
+    title: 'Recurring Payment Processed',
+    message: `₦${recurring.amount.toLocaleString()} deducted for "${recurring.description}" (${recurring.frequency}).`,
+    type: 'recurring',
+  });
 
   // show toast
   toast({

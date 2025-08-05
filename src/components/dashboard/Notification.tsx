@@ -7,7 +7,7 @@ export default function Notification() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -17,7 +17,11 @@ export default function Notification() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (!error) setNotifications(data);
+    if (!error) {
+        setNotifications(data);
+        const unread = data.filter(n => !n.is_read).length;
+        setUnreadCount(unread);
+    }    
     setLoading(false);
   };
 

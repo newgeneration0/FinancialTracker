@@ -33,12 +33,14 @@ interface HeaderProps {
   setActiveTab: (tab: string) => void;
 }
 
-const Header = ({ activeTab, setActiveTab }: HeaderProps) => {
+const Header = ({ activeTab, setActiveTab}: HeaderProps) => {
   const { user, logout } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const { currentCurrency } = useCurrency();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  // const [unreadCount, setUnreadCount] = useState(0);
+  
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Home, route: '/' },

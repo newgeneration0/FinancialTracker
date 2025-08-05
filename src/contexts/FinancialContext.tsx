@@ -227,6 +227,14 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     }
     // Update local state
     setTransactions(prev => prev.filter(t => t.id !== id));
+
+    //Send a notification
+    await SendNotification({
+      userId: user!.id,
+      title: 'Transaction Deleted',
+      message: `A ₦${transaction.amount.toLocaleString()} ${transaction.type} for "${transaction.category}" was removed.`,
+      type: 'transaction',
+    });
   };
 
 
@@ -346,6 +354,27 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     if (error) {
       console.error('Failed to update goal in Supabase:', error.message);
       return;
+    }
+
+    //Always send progress notification
+    await SendNotification({
+      userId: user!.id,
+      title: 'Savings Updated',
+      message: `You added ₦${amount.toLocaleString()} to "${goalToUpdate.name}". Current savings: ₦${newAmount.toLocaleString()}`,
+      type: 'goal',
+    });
+
+    //Trigger goal completed notification if crossed the target
+    const isNowCompleted = newAmount >= goalToUpdate.targetAmount;
+    const wasIncomplete = goalToUpdate.currentAmount < goalToUpdate.targetAmount;
+
+    if (isNowCompleted && wasIncomplete) {
+      await SendNotification({
+        userId: user!.id,
+        title: 'Savings Goal Achieved!',
+        message: `You've reached your ₦${goalToUpdate.targetAmount.toLocaleString()} goal for "${goalToUpdate.name}".`,
+        type: 'goal',
+      });
     }
 
     // Update in local state
