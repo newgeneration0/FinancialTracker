@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../components/auth/supabaseClient'
-// import { faker } from '@faker-js/faker';
 
 export interface Transaction {
   id: string;
@@ -67,6 +66,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const { user } = useAuth();
 
+  // fectch transaction
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
@@ -92,7 +92,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     
   }, [user]);
 
-   //to run recalculateBudgets whenever transactions or budgets change
+  //to run recalculateBudgets whenever transactions or budgets change
   useEffect(() => {
     if (!transactions.length || !budgets.length) return;
 
@@ -388,7 +388,7 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
 
     setBudgets(updatedBudgets);
   };
-
+  
   //To get the Percentage vs last month
   const calculateMonthlyChange = (type: 'income' | 'expense' | 'balance') => {
   const now = new Date();

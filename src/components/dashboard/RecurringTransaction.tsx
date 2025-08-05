@@ -107,8 +107,6 @@ const RecurringTransactions = () => {
     is_active: true,
     user_id: user?.id || '',
     created_at: new Date().toISOString(),
-
-    // remove name, isActive, start_date, end_date if they don't exist in your table
   };
   console.log("User ID being sent:", user?.id);
 
@@ -283,27 +281,27 @@ const RecurringTransactions = () => {
     // };
 
     const deleteRecurring = async (id: string) => {
-         const { error } = await supabase
-        .from('recurring_transactions')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase
+      .from('recurring_transactions')
+      .delete()
+      .eq('id', id);
 
-        if (error) {
-            toast({
-            title: 'Delete failed',
-            description: error.message,
-            variant: 'destructive'
-            });
-            return;
-        }
+      if (error) {
+          toast({
+          title: 'Delete failed',
+          description: error.message,
+          variant: 'destructive'
+          });
+          return;
+      }
 
-        // Update UI
-        setRecurringTransactions(prev => prev.filter(tx => tx.id !== id));
+      // Update UI
+      setRecurringTransactions(prev => prev.filter(tx => tx.id !== id));
 
-        toast({
-            title: 'Deleted',
-            description: 'The Recurring transaction has been removed.',
-        });
+      toast({
+          title: 'Deleted',
+          description: 'The Recurring transaction has been removed.',
+      });
     };
 
 
@@ -322,29 +320,23 @@ const RecurringTransactions = () => {
             </Button>
           </CardTitle>
         </CardHeader> */}
+        <CardHeader>
+          <CardTitle className="flex flex-col md:flex-row items-center md:items-start justify-between gap-2">
+            {/* Left side: Icon + text */}
+            <div className="flex items-center space-x-2 justify-center md:justify-start w-full md:w-auto">
+              <Repeat className="h-5 w-5" />
+              <span className='text-xl lg:text-2xl'>Recurring Transactions</span>
+            </div>
 
-<CardHeader>
-  <CardTitle className="flex flex-col md:flex-row items-center md:items-start justify-between gap-2">
-    {/* Left side: Icon + text */}
-    <div className="flex items-center space-x-2 justify-center md:justify-start w-full md:w-auto">
-      <Repeat className="h-5 w-5" />
-      <span className='text-xl lg:text-2xl'>Recurring Transactions</span>
-    </div>
-
-    {/* Right side: Button */}
-    <div className="w-full md:w-auto flex justify-center md:justify-end">
-      <Button onClick={() => setShowForm(!showForm)} size="sm">
-        <Plus className="h-4 w-4 mr-2" />
-        Add Recurring
-      </Button>
-    </div>
-  </CardTitle>
-</CardHeader>
-
-
-
-  
-
+            {/* Right side: Button */}
+            <div className="w-full md:w-auto flex justify-center md:justify-end">
+              <Button onClick={() => setShowForm(!showForm)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Recurring
+              </Button>
+            </div>
+          </CardTitle>
+        </CardHeader>
         <CardContent className="space-y-4">
           {showForm && (
             <Card className="border-dashed">
@@ -442,257 +434,96 @@ const RecurringTransactions = () => {
               </div>
             ) : (
               recurringTransactions.map((recurring) => (
-                // <div
-                //   key={recurring.id}
-                //   className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
-                //     recurring.is_active 
-                //       ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700' 
-                //       : 'bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-600 opacity-60'
-                //   }`}
-                // >
-                //   <div className="flex items-center space-x-3">
-                //     <div className={`p-2 rounded-full ${
-                //       recurring.type === 'income' 
-                //         ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' 
-                //         : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-                //     }`}>
-                //       {recurring.type === 'income' ? (
-                //         <TrendingUp className="h-4 w-4" />
-                //       ) : (
-                //         <TrendingDown className="h-4 w-4" />
-                //       )}
-                //     </div>
-                //     <div>
-                //       <p className="font-medium">{recurring.description}</p>
-                //       <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                //         <span>{recurring.category}</span>
-                //         <span>•</span>
-                //         <span className="capitalize">{recurring.frequency}</span>
-                //         <span>•</span>
-                //         <div className="flex items-center space-x-1">
-                //           <Calendar className="h-3 w-3" />
-                //           <span>Next: {new Date(recurring.next_occurrence).toLocaleDateString()}</span>
-                //         </div>
-                //       </div>
-                //     </div>
-                //   </div>
+                <div
+                key={recurring.id}
+                className={`flex flex-col md:flex-row md:items-center sm:justify-between p-4 rounded-lg border gap-3 transition-colors
                   
-                //   <div className="flex items-center space-x-3">
-                //     <span className={`font-semibold ${
-                //       recurring.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                //     }`}>
-                //       {recurring.type === 'income' ? '+' : '-'}{formatCurrency(recurring.amount)}
-                //     </span>
-                    
-                //     <div className="flex space-x-1">
-                //       <Button
-                //         variant="ghost"
-                //         size="sm"
-                //         onClick={() => executeTransaction(recurring)}
-                //         className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                //         disabled={!recurring.is_active}
-                //       >
-                //         <Play className="h-4 w-4" />
-                //       </Button>
-                //       <Button
-                //         variant="ghost"
-                //         size="sm"
-                //         // onClick={() => toggleActive(recurring.id)}
-                //          onClick={() => toggleActive(recurring.id, recurring.is_active)}
-                //         className={recurring.is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'}
-                //       >
-                //         {recurring.is_active ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                //       </Button>
-                //       <Button
-                //         variant="ghost"
-                //         size="sm"
-                //         onClick={() => deleteRecurring(recurring.id)}
-                //         className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                //       >
-                //         <Trash2 className="h-4 w-4" />
-                //       </Button>
-                //     </div>
-                //   </div>
-                // </div>
-              
-//                 <div
-//   key={recurring.id}
-//   className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border gap-4 transition-colors ${
-//     recurring.is_active
-//       ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-//       : 'bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-600 opacity-60'
-//   }`}
-// >
-//   {/* LEFT: Icon + Info */}
-//   <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-3">
-//     <div
-//       className={`p-2 rounded-full self-start sm:self-auto ${
-//         recurring.type === 'income'
-//           ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-//           : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-//       }`}
-//     >
-//       {recurring.type === 'income' ? (
-//         <TrendingUp className="h-4 w-4" />
-//       ) : (
-//         <TrendingDown className="h-4 w-4" />
-//       )}
-//     </div>
-//     <div className="mt-2 sm:mt-0">
-//       <p className="font-medium text-sm sm:text-base break-words">{recurring.description}</p>
-//       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-//         <span>{recurring.category}</span>
-//         <span>•</span>
-//         <span className="capitalize">{recurring.frequency}</span>
-//         <span>•</span>
-//         <div className="flex items-center space-x-1">
-//           <Calendar className="h-3 w-3" />
-//           <span className="truncate">Next: {new Date(recurring.next_occurrence).toLocaleDateString()}</span>
-//         </div>
-//       </div>
-//     </div>
-//   </div>
+                   ${
+                  recurring.is_active
+                    ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                    : 'bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-600 opacity-60'
+                }`}
+              >
+                {/* LEFT: Icon + Info */}
+                <div className="flex flex-row sm:flex-row sm:items-start space-x-3">
+                  <div
+                    className={`p-2 rounded-full self-start sm:self-auto ${
+                      recurring.type === 'income'
+                        ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
+                        : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
+                    }`}
+                  >
+                    {recurring.type === 'income' ? (
+                      <TrendingUp className="h-4 w-4" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div className="mt-0 sm:mt-0">
+                    <p className="font-medium text-sm sm:text-base break-words">{recurring.description}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span>{recurring.category}</span>
+                      <span>•</span>
+                      <span className="capitalize">{recurring.frequency}</span>
+                      <span>•</span>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-3 w-3" />
+                        <span className="truncate">Next: {new Date(recurring.next_occurrence).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-//   {/* RIGHT: Amount + Actions */}
-//   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-//     <span
-//       className={`font-semibold ${
-//         recurring.type === 'income'
-//           ? 'text-green-600 dark:text-green-400'
-//           : 'text-red-600 dark:text-red-400'
-//       }`}
-//     >
-//       {recurring.type === 'income' ? '+' : '-'}
-//       {formatCurrency(recurring.amount)}
-//     </span>
+                {/* RIGHT: Amount + Actions */}
+                <div className="flex flex-row items-start ms-10 md:ms-0 sm:items-center justify-between gap-1 sm:gap-4">
+                  <span
+                    className={`font-semibold ${
+                      recurring.type === 'income'
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
+                    {recurring.type === 'income' ? '+' : '-'}
+                    {formatCurrency(recurring.amount)}
+                  </span>
 
-//     <div className="flex space-x-1">
-//       <Button
-//         variant="ghost"
-//         size="sm"
-//         onClick={() => executeTransaction(recurring)}
-//         className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-//         disabled={!recurring.is_active}
-//       >
-//         <Play className="h-4 w-4" />
-//       </Button>
-//       <Button
-//         variant="ghost"
-//         size="sm"
-//         onClick={() => toggleActive(recurring.id, recurring.is_active)}
-//         className={
-//           recurring.is_active
-//             ? 'text-orange-600 hover:bg-orange-50'
-//             : 'text-green-600 hover:bg-green-50'
-//         }
-//       >
-//         {recurring.is_active ? (
-//           <Pause className="h-4 w-4" />
-//         ) : (
-//           <Play className="h-4 w-4" />
-//         )}
-//       </Button>
-//       <Button
-//         variant="ghost"
-//         size="sm"
-//         onClick={() => deleteRecurring(recurring.id)}
-//         className="text-red-500 hover:text-red-700 hover:bg-red-50"
-//       >
-//         <Trash2 className="h-4 w-4" />
-//       </Button>
-//     </div>
-//   </div>
-// </div>
-                      <div
-  key={recurring.id}
-  className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border gap-3 transition-colors ${
-    recurring.is_active
-      ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-      : 'bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-600 opacity-60'
-  }`}
->
-  {/* LEFT: Icon + Info */}
-  <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-3">
-    <div
-      className={`p-2 rounded-full self-start sm:self-auto ${
-        recurring.type === 'income'
-          ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-          : 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-      }`}
-    >
-      {recurring.type === 'income' ? (
-        <TrendingUp className="h-4 w-4" />
-      ) : (
-        <TrendingDown className="h-4 w-4" />
-      )}
-    </div>
-    <div className="mt-2 sm:mt-0">
-      <p className="font-medium text-sm sm:text-base break-words">{recurring.description}</p>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-        <span>{recurring.category}</span>
-        <span>•</span>
-        <span className="capitalize">{recurring.frequency}</span>
-        <span>•</span>
-        <div className="flex items-center space-x-1">
-          <Calendar className="h-3 w-3" />
-          <span className="truncate">Next: {new Date(recurring.next_occurrence).toLocaleDateString()}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* RIGHT: Amount + Actions */}
-  <div className="flex flex-row  items-center sm:items-center justify-between gap-2 sm:gap-4">
-    <span
-      className={`font-semibold ${
-        recurring.type === 'income'
-          ? 'text-green-600 dark:text-green-400'
-          : 'text-red-600 dark:text-red-400'
-      }`}
-    >
-      {recurring.type === 'income' ? '+' : '-'}
-      {formatCurrency(recurring.amount)}
-    </span>
-
-    <div className="flex space-x-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => executeTransaction(recurring)}
-        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-        disabled={!recurring.is_active}
-      >
-        <Play className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => toggleActive(recurring.id, recurring.is_active)}
-        className={
-          recurring.is_active
-            ? 'text-orange-600 hover:bg-orange-50'
-            : 'text-green-600 hover:bg-green-50'
-        }
-      >
-        {recurring.is_active ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4" />
-        )}
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => deleteRecurring(recurring.id)}
-        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
-    </div>
-  </div>
-</div>
-
-
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => executeTransaction(recurring)}
+                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                      disabled={!recurring.is_active}
+                    >
+                      <Play className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleActive(recurring.id, recurring.is_active)}
+                      className={
+                        recurring.is_active
+                          ? 'text-orange-600 hover:bg-orange-50'
+                          : 'text-green-600 hover:bg-green-50'
+                      }
+                    >
+                      {recurring.is_active ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteRecurring(recurring.id)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                </div>
               ))
             )}
           </div>

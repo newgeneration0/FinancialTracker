@@ -68,7 +68,7 @@ useEffect(() => {
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md">
+    <Card className="bg-white/80 max-h-64 overflow-y-auto backdrop-blur-sm border-0 shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Target className="h-5 w-5 text-gray-900" />

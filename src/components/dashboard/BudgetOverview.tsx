@@ -70,7 +70,7 @@ const BudgetOverview = () => {
   ];
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md">
+    <Card className="bg-white/80 max-h-56 overflow-y-auto backdrop-blur-sm border-0 shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

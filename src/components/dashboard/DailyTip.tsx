@@ -91,7 +91,7 @@ const DailyTip = () => {
     const today = new Date();
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
     setCurrentTipIndex(dayOfYear % financialTips.length);
-  }, []);
+  }, [financialTips.length]);
 
   const handleNextTip = () => {
     setCurrentTipIndex((prev) => (prev + 1) % financialTips.length);
