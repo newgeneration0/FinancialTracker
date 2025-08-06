@@ -15,7 +15,7 @@ import UserProfile from './UserProfile';
 import RecurringTransactions from './RecurringTransaction';
 import Notification from './Notification';
  import { SendNotification } from '@/lib/SendNotification';
- import { supabase } from '../auth/supabaseClient';
+ import { supabase } from '../auth/SupabaseClient';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');

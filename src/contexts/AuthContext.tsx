@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../components/auth/supabaseClient'
+import { supabase } from '../components/auth/SupabaseClient'
 import { toast } from '../hooks/use-toast';
 
 interface User {

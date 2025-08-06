@@ -1,10 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
-import { supabase } from '../../components/auth/supabaseClient'
+import { supabase } from '../auth/SupabaseClient'
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Notification({ notifications, fetchNotifications }) {
   const { user } = useAuth();
-  
+
   // MARK SINGLE NOTIFICATION AS READ
   const markAsRead = async (id) => {
     await supabase

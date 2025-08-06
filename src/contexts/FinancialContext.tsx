@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../components/auth/supabaseClient'
+import { supabase } from '../components/auth/SupabaseClient'
 import { SendNotification } from '@/lib/SendNotification';
 
 export interface Transaction {

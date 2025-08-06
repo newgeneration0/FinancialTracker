@@ -1,4 +1,4 @@
-import { supabase } from '../components/auth/supabaseClient'
+import { supabase } from '../components/auth/SupabaseClient'
 
 export const SendNotification = async ({ userId, title, message, type = 'general' }) => {
   if (!userId || !title || !message) return;

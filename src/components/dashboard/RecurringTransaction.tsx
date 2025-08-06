@@ -9,7 +9,7 @@ import { useCurrency } from '../../contexts/CurrencyContext';
 import { toast } from '../../hooks/use-toast';
 import { RecurringTransaction } from 'src/types/recurring';
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../auth/supabaseClient';
+import { supabase } from '../auth/SupabaseClient';
 import { SendNotification } from '@/lib/SendNotification';
 import { 
   Plus, 
