@@ -42,7 +42,7 @@ const Header = ({ activeTab, setActiveTab, unreadCount}: HeaderProps) => {
   const navigate = useNavigate();
   // const [unreadCount, setUnreadCount] = useState(0);
   
-  console.log('Header unreadCount:', unreadCount);
+  // console.log('Header unreadCount:', unreadCount);
 
 
   const tabs = [
@@ -52,7 +52,7 @@ const Header = ({ activeTab, setActiveTab, unreadCount}: HeaderProps) => {
     { id: 'insights', label: 'Insights', icon: Lightbulb, route: '/insights' },
     { id: 'profile', label: 'Profile', icon: User, route: '/profile'},
   ];
-  
+
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -123,7 +123,7 @@ const TransactionList = () => {
                 key={transaction.id}
                 className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1 sm:space-x-3">
                   <div className={`p-2 rounded-full ${
                     transaction.type === 'income' 
                       ? 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400' 
@@ -165,7 +165,7 @@ const TransactionList = () => {
 
                 </div>
                 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1 sm:space-x-3">
                   <span className={`font-semibold ${
                     transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   }`}>

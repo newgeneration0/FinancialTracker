@@ -37,9 +37,9 @@ const Dashboard = () => {
       if (!error) {
           setNotifications(data);
           const unread = data.filter(n => !n.is_read).length;
-          console.log('Unread notifications:', unread);
+          // console.log('Unread notifications:', unread);
           setUnreadCount(unread);
-          console.log('Fetched notifications:', data);
+          // console.log('Fetched notifications:', data);
       }    
       setLoading(false);
     };
