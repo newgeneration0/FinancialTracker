@@ -483,7 +483,7 @@ const RecurringTransactions = () => {
                 </div>
 
                 {/* RIGHT: Amount + Actions */}
-                <div className="flex flex-row items-start ms-10 md:ms-0 sm:items-center justify-between gap-1 sm:gap-4">
+                <div className="flex flex-row items-center ms-10 md:ms-0 justify-between gap-1 sm:gap-4">
                   <span
                     className={`font-semibold ${
                       recurring.type === 'income'

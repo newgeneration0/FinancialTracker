@@ -83,21 +83,20 @@ useEffect(() => {
             <p className="text-sm text-gray-900">Create your first goal to start saving!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 py-2">
             {goals.map((goal) => {
               const progress = (goal.currentAmount / goal.targetAmount) * 100;
               const daysRemaining = getDaysRemaining(goal.targetDate);
               const isCompleted = progress >= 100;
-              
               return (
-                <div key={goal.id} className="px-1 py-4 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                <div key={goal.id} className=" px-2 py-3 sm:w-auto w-68  sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
                   <div className="flex items-center justify-between mb-3 space-x-">
                     <div>
-                      <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
+                      <h3 className="font-semibold text-gray-900 flex items-center space-x-1">
                         <span>{goal.name}</span>
                         {isCompleted && <Trophy className="h-4 w-4 text-yellow-500" />}
                       </h3>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                      <div className="flex items-center space-x-2 sm:space-x-4 text-sm text-gray-600 mt-1">
                         <span>{formatCurrency(goal.currentAmount)} of {formatCurrency(goal.targetAmount)}</span>
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3" />
