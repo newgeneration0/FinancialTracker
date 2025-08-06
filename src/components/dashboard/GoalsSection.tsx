@@ -90,8 +90,8 @@ useEffect(() => {
               const isCompleted = progress >= 100;
               
               return (
-                <div key={goal.id} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={goal.id} className="px-1 py-4 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                  <div className="flex items-center justify-between mb-3 space-x-">
                     <div>
                       <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
                         <span>{goal.name}</span>
@@ -108,13 +108,14 @@ useEffect(() => {
                       </div>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteGoal(goal.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteGoal(goal.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    
                   </div>
 
                   <div className="mb-3">
