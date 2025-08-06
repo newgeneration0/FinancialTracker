@@ -135,7 +135,7 @@ const TransactionList = () => {
                       <TrendingDown className="h-4 w-4" />
                     )}
                   </div>
-                  {/* <div>
+                  <div>
                     <p className="font-medium text-gray-900 dark:text-white text-sm">
                       {transaction.description || transaction.category}
                     </p>
@@ -147,8 +147,8 @@ const TransactionList = () => {
                         <span>{formatDate(transaction.date)}</span>
                       </div>
                     </div>
-                  </div> */}
-                  <div className="space-y-1">
+                  </div>
+                  {/* <div className="space-y-1">
   <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
     {transaction.description || transaction.category}
   </p>
@@ -161,7 +161,7 @@ const TransactionList = () => {
       <span className="truncate">{formatDate(transaction.date)}</span>
     </div>
   </div>
-</div>
+</div> */}
 
                 </div>
                 
