@@ -121,7 +121,7 @@ const TransactionList = () => {
             filteredTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between py-4 px-1 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
               >
                 <div className="flex items-center space-x-3">
                   <div className={`p-2 rounded-full ${
