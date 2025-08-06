@@ -139,7 +139,7 @@ const TransactionList = () => {
                     <p className="font-medium text-gray-900 dark:text-white text-sm">
                       {transaction.description || transaction.category}
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-gray-500 dark:text-gray-400">
                       <span>{transaction.category}</span>
                       <span>•</span>
                       <div className="flex items-center space-x-1">

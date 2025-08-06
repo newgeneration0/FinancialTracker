@@ -469,7 +469,7 @@ const RecurringTransactions = () => {
                   </div>
                   <div className="mt-0 sm:mt-0">
                     <p className="font-medium text-sm sm:text-base break-words">{recurring.description}</p>
-                    <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-1 sm:gap-x-2 gap-y-1 text-xs text-muted-foreground">
                       <span>{recurring.category}</span>
                       <span>•</span>
                       <span className="capitalize">{recurring.frequency}</span>
