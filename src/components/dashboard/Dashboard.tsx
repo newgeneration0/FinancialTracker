@@ -16,6 +16,9 @@ import RecurringTransactions from './RecurringTransaction';
 import Notification from './Notification';
  import { SendNotification } from '@/lib/SendNotification';
  import { supabase } from '../auth/SupabaseClient';
+ import { isBefore, parseISO, startOfToday } from 'date-fns';
+ import { getNextDate } from '@/lib/getNextDate';
+ import  executeTransaction  from '../../components/dashboard/RecurringTransaction';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -96,6 +99,7 @@ const Dashboard = () => {
 
     checkAndSendDailyReminder();
   }, [user]);
+
 
   const renderContent = () => {
     switch (activeTab) {

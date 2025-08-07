@@ -60,9 +60,9 @@ const TransactionList = () => {
     <Card className="bg-white/80 drak:bg-gray-800/80 backdrop-blur-sm border-0 shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x- sm:space-x-2">
             <DollarSign className="h-5 w-5 text-gray-900" />
-            <span className='text-gray-900'>Recent Transactions</span>
+            <span className='text-gray-900 text-xl sm:text-2xl'>Recent Transactions</span>
           </div>
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''}

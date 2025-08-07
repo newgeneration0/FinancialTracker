@@ -11,6 +11,9 @@ import { RecurringTransaction } from 'src/types/recurring';
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../auth/SupabaseClient';
 import { SendNotification } from '@/lib/SendNotification';
+import { isBefore, parseISO, startOfToday } from 'date-fns';
+import { getNextDate } from '../../lib/getNextDate';
+// import { parseISO } from 'date-fns';
 import { 
   Plus, 
   Calendar, 
@@ -42,24 +45,24 @@ const RecurringTransactions = () => {
     'Salary', 'Freelance', 'Investment', 'Business', 'Other'
   ];
 
-  const getNextDate = (frequency: string) => {
-    const now = new Date();
-    switch (frequency) {
-      case 'daily':
-        now.setDate(now.getDate() + 1);
-        break;
-      case 'weekly':
-        now.setDate(now.getDate() + 7);
-        break;
-      case 'monthly':
-        now.setMonth(now.getMonth() + 1);
-        break;
-      case 'yearly':
-        now.setFullYear(now.getFullYear() + 1);
-        break;
-    }
-    return now.toISOString().split('T')[0];
-  };
+  // const getNextDate = (frequency: string) => {
+  //   const now = new Date();
+  //   switch (frequency) {
+  //     case 'daily':
+  //       now.setDate(now.getDate() + 1);
+  //       break;
+  //     case 'weekly':
+  //       now.setDate(now.getDate() + 7);
+  //       break;
+  //     case 'monthly':
+  //       now.setMonth(now.getMonth() + 1);
+  //       break;
+  //     case 'yearly':
+  //       now.setFullYear(now.getFullYear() + 1);
+  //       break;
+  //   }
+  //   return now.toISOString().split('T')[0];
+  // };
 
     useEffect(() => {
     const fetchRecurring = async () => {
@@ -68,7 +71,8 @@ const RecurringTransactions = () => {
       const { data, error } = await supabase
         .from('recurring_transactions')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }); 
 
       if (error) {
         toast({
@@ -207,6 +211,7 @@ const RecurringTransactions = () => {
 
 
   const executeTransaction = async (recurring: RecurringTransaction) => {
+      const today = new Date().toISOString().split('T')[0];
   // Add the actual transaction
   await addTransaction({
     type: recurring.type,
@@ -216,7 +221,7 @@ const RecurringTransactions = () => {
     date: new Date().toISOString().split('T')[0],
   });
 
-  // Update the next execution date and mark as executed
+  //Update the next execution date and mark as executed
   setRecurringTransactions(prev =>
     prev.map(r =>
       r.id === recurring.id
@@ -244,49 +249,86 @@ const RecurringTransactions = () => {
     });
   };
 
-    const toggleActive = async (id: string, currentStatus: boolean) => {
-  // Update in Supabase
-  const { error } = await supabase
-    .from('recurring_transactions')
-    .update({ is_active: !currentStatus })
-    .eq('id', id);
+  const toggleActive = async (id: string, currentStatus: boolean) => {
+    // Update in Supabase
+    const { error } = await supabase
+      .from('recurring_transactions')
+      .update({ is_active: !currentStatus })
+      .eq('id', id);
 
-  if (error) {
+    if (error) {
+      toast({
+        title: 'Failed to update status',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Update local state
+    setRecurringTransactions(prev => 
+      prev.map(r => 
+        r.id === id ? { ...r, is_active: !currentStatus } : r
+      )
+    );
+
     toast({
-      title: 'Failed to update status',
-      description: error.message,
-      variant: 'destructive',
+      title: `Recurring transaction ${!currentStatus ? 'resumed' : 'paused'}`,
+      description: `This recurring transaction is now ${!currentStatus ? 'active' : 'inactive'}.`,
     });
-    return;
-  }
+  };
 
-  // Update local state
-  setRecurringTransactions(prev => 
-    prev.map(r => 
-      r.id === id ? { ...r, is_active: !currentStatus } : r
-    )
-  );
+//   useEffect(() => {
+//     const triggerRecurringTransactions = async () => {
+//       if (!user?.id) return;
 
-  toast({
-    title: `Recurring transaction ${!currentStatus ? 'resumed' : 'paused'}`,
-    description: `This recurring transaction is now ${!currentStatus ? 'active' : 'inactive'}.`,
-  });
-};
+//       const { data: recurringList, error } = await supabase
+//         .from('recurring_transactions')
+//         .select('*')
+//         .eq('user_id', user.id)
+//         .eq('is_active', true);
+
+//       if (error) {
+//         console.error('Failed to fetch recurring transactions', error);
+//         return;
+//       }
+
+//       const today = startOfToday();
+
+//      const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+// recurringList.forEach((recurring) => {
+//   const nextDate = parseISO(recurring.next_occurrence);
+//   const lastExecuted = recurring.lastExecuted || null;
+
+//   const alreadyExecutedToday = lastExecuted === todayStr;
+
+//   if (
+//     !alreadyExecutedToday &&
+//     (isBefore(nextDate, today) || nextDate.toDateString() === today.toDateString())
+//   ) {
+//     executeTransaction(recurring);
+//   }
+// });
+//     };
+
+//     triggerRecurringTransactions();
+//     }, [user]);
 
 
-    // const toggleActive = (id: string) => {
-    // setRecurringTransactions(prev => prev.map(r => 
-    //     r.id === id ? { ...r, isActive: !r.is_active } : r
-    // ));
-    // };
+  // const toggleActive = (id: string) => {
+  // setRecurringTransactions(prev => prev.map(r => 
+  //     r.id === id ? { ...r, isActive: !r.is_active } : r
+  // ));
+  // };
 
-    // const deleteRecurring = (id: string) => {
-    // setRecurringTransactions(prev => prev.filter(r => r.id !== id));
-    // toast({
-    //     title: 'Recurring transaction deleted',
-    //     description: 'The recurring transaction has been removed.',
-    // });
-    // };
+  // const deleteRecurring = (id: string) => {
+  // setRecurringTransactions(prev => prev.filter(r => r.id !== id));
+  // toast({
+  //     title: 'Recurring transaction deleted',
+  //     description: 'The recurring transaction has been removed.',
+  // });
+  // };
 
     const deleteRecurring = async (id: string) => {
       const { error } = await supabase

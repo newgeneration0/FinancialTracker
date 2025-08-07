@@ -75,7 +75,8 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
       const { data: transactionData, error: transactionError } = await supabase
         .from('transactions')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }); 
 
       if (transactionError) {
         console.error('Error fetching transactions:', transactionError.message);
@@ -449,7 +450,8 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     const { data, error } = await supabase
       .from('budgets')
       .select('*')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }); 
 
     if (error) console.error(error);
     else setBudgets(data);
