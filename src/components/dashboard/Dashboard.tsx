@@ -17,10 +17,12 @@ import Notification from './Notification';
  import { SendNotification } from '@/lib/SendNotification';
  import { supabase } from '../auth/SupabaseClient';
  import { isBefore, parseISO, startOfToday } from 'date-fns';
- import { getNextDate } from '@/lib/getNextDate';
+//  import { getNextDate } from '@/lib/getNextDate';
  import  executeTransaction  from '../../components/dashboard/RecurringTransaction';
+//  import { useRecurringAutoTrigger } from '@/hooks/useRecurringAutoTrigger'
 
 const Dashboard = () => {
+  // useRecurringAutoTrigger()
   const [activeTab, setActiveTab] = useState('overview');
   const { user } = useAuth();
   const firstName = user?.firstName || localStorage.getItem('firstName') || 'Friend';

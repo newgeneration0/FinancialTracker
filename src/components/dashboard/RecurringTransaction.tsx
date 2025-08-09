@@ -11,9 +11,6 @@ import { RecurringTransaction } from 'src/types/recurring';
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../auth/SupabaseClient';
 import { SendNotification } from '@/lib/SendNotification';
-import { isBefore, parseISO, startOfToday } from 'date-fns';
-import { getNextDate } from '../../lib/getNextDate';
-// import { parseISO } from 'date-fns';
 import { 
   Plus, 
   Calendar, 
@@ -30,6 +27,7 @@ const RecurringTransactions = () => {
   const { formatCurrency } = useCurrency();
   const { user } = useAuth()
   const [recurringTransactions, setRecurringTransactions] = useState<RecurringTransaction[]>([]);
+   const [triggering, setTriggering] = useState(false)
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     type: 'expense' as 'income' | 'expense',
@@ -45,26 +43,27 @@ const RecurringTransactions = () => {
     'Salary', 'Freelance', 'Investment', 'Business', 'Other'
   ];
 
-  // const getNextDate = (frequency: string) => {
-  //   const now = new Date();
-  //   switch (frequency) {
-  //     case 'daily':
-  //       now.setDate(now.getDate() + 1);
-  //       break;
-  //     case 'weekly':
-  //       now.setDate(now.getDate() + 7);
-  //       break;
-  //     case 'monthly':
-  //       now.setMonth(now.getMonth() + 1);
-  //       break;
-  //     case 'yearly':
-  //       now.setFullYear(now.getFullYear() + 1);
-  //       break;
-  //   }
-  //   return now.toISOString().split('T')[0];
-  // };
 
-    useEffect(() => {
+  const getNextDate = (frequency: string) => {
+    const now = new Date();
+    switch (frequency) {
+      case 'daily':
+        now.setDate(now.getDate() + 1);
+        break;
+      case 'weekly':
+        now.setDate(now.getDate() + 7);
+        break;
+      case 'monthly':
+        now.setMonth(now.getMonth() + 1);
+        break;
+      case 'yearly':
+        now.setFullYear(now.getFullYear() + 1);
+        break;
+    }
+    return now.toISOString().split('T')[0];
+  };
+
+  useEffect(() => {
     const fetchRecurring = async () => {
       if (!user?.id) return;
 
@@ -82,6 +81,7 @@ const RecurringTransactions = () => {
         });
       } else {
         setRecurringTransactions(data);
+        // await processRecurringTransactions();
       }
     };
 
@@ -90,7 +90,6 @@ const RecurringTransactions = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-
   if (!formData.amount || !formData.category || !formData.description) {
     toast({
       title: 'Error',
@@ -99,7 +98,6 @@ const RecurringTransactions = () => {
     });
     return;
   }
-
   // Only include fields that exist in your Supabase `recurring_transactions` table
   const newRecurring = {
     type: formData.type as 'income' | 'expense',
@@ -112,9 +110,7 @@ const RecurringTransactions = () => {
     user_id: user?.id || '',
     created_at: new Date().toISOString(),
   };
-  console.log("User ID being sent:", user?.id);
-
-
+  // console.log("User ID being sent:", user?.id);
   const { data, error } = await supabase
     .from('recurring_transactions')
     .insert([newRecurring])
@@ -145,107 +141,44 @@ const RecurringTransactions = () => {
       description: `${formData.frequency} ${formData.type} of ${formatCurrency(parseFloat(formData.amount))} has been saved.`,
     });
   }
-};
-
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-    
-//     if (!formData.amount || !formData.category || !formData.description) {
-//       toast({
-//         title: 'Error',
-//         description: 'Please fill in all fields.',
-//         variant: 'destructive',
-//       });
-//       return;
-//     }
-
-//      const newRecurring: Omit<RecurringTransaction, 'id'> = {
-//       type: formData.type as 'income' | 'expense',
-//       amount: parseFloat(formData.amount),
-//       category: formData.category,
-//       description: formData.description,
-//       frequency: formData.frequency as 'daily' | 'weekly' | 'monthly' | 'yearly',
-//       next_occurrence: getNextDate(formData.frequency),
-//       isActive: true,
-//       user_id: user?.id || '',
-//       created_at: new Date().toISOString(),
-//     };
-
-//      const { data, error } = await supabase
-//       .from('recurring_transactions')
-//       .insert([newRecurring])
-//       .select();
-
-//     if (error) {
-//       toast({
-//         title: 'Failed to save',
-//         description: error.message,
-//         variant: 'destructive',
-//       });
-//       return;
-//     }
-
-//     if (data) {
-//       setRecurringTransactions((prev) => [...prev, data[0]]);
-//       setFormData({
-//         type: 'expense',
-//         amount: '',
-//         category: '',
-//         description: '',
-//         frequency: 'monthly',
-//       });
-//       setShowForm(false);
-
-//       toast({
-//         title: 'Recurring transaction created',
-//         description: `${formData.frequency} ${formData.type} of ${formatCurrency(parseFloat(formData.amount))} has been saved.`,
-//       });
-//     }
-
-//     toast({
-//       title: 'Recurring transaction created',
-//       description: `${formData.frequency} ${formData.type} of ${formatCurrency(parseFloat(formData.amount))} has been set up.`,
-//     });
-//   };
-
+  };
 
   const executeTransaction = async (recurring: RecurringTransaction) => {
-      const today = new Date().toISOString().split('T')[0];
-  // Add the actual transaction
-  await addTransaction({
-    type: recurring.type,
-    amount: recurring.amount,
-    category: recurring.category,
-    description: `${recurring.description} (Auto)`,
-    date: new Date().toISOString().split('T')[0],
-  });
+    const today = new Date().toISOString().split('T')[0];
+    // Add the actual transaction
+    await addTransaction({
+      type: recurring.type,
+      amount: recurring.amount,
+      category: recurring.category,
+      description: `${recurring.description} (Auto)`,
+      date: new Date().toISOString().split('T')[0],
+    });
 
-  //Update the next execution date and mark as executed
-  setRecurringTransactions(prev =>
-    prev.map(r =>
-      r.id === recurring.id
-        ? {
-            ...r,
-            nextDate: getNextDate(r.frequency),
-            lastExecuted: new Date().toISOString().split('T')[0],
-          }
-        : r
-    )
-  );
+    //Update the next execution date and mark as executed
+    setRecurringTransactions(prev =>
+      prev.map(r =>
+        r.id === recurring.id
+          ? {
+              ...r,
+              nextDate: getNextDate(r.frequency),
+              lastExecuted: new Date().toISOString().split('T')[0],
+            }
+          : r
+      )
+    );
 
-  //Send notification
-  await SendNotification({
-    userId: user!.id, // make sure user is available in scope
-    title: 'Recurring Payment Processed',
-    message: `₦${recurring.amount.toLocaleString()} deducted for "${recurring.description}" (${recurring.frequency}).`,
-    type: 'recurring',
-  });
+    //Send notification
+    await SendNotification({
+      userId: user!.id, // make sure user is available in scope
+      title: 'Recurring Payment Processed',
+      message: `₦${recurring.amount.toLocaleString()} deducted for "${recurring.description}" (${recurring.frequency}).`,
+      type: 'recurring',
+    });
 
-  // show toast
-  toast({
-    title: "Transaction added",
-    description: `${recurring.description} executed as one-time transaction.`,
+    // show toast
+    toast({
+      title: "Transaction added",
+      description: `${recurring.description} executed as one-time transaction.`,
     });
   };
 
@@ -278,98 +211,35 @@ const RecurringTransactions = () => {
     });
   };
 
-//   useEffect(() => {
-//     const triggerRecurringTransactions = async () => {
-//       if (!user?.id) return;
 
-//       const { data: recurringList, error } = await supabase
-//         .from('recurring_transactions')
-//         .select('*')
-//         .eq('user_id', user.id)
-//         .eq('is_active', true);
+  const deleteRecurring = async (id: string) => {
+    const { error } = await supabase
+    .from('recurring_transactions')
+    .delete()
+    .eq('id', id);
 
-//       if (error) {
-//         console.error('Failed to fetch recurring transactions', error);
-//         return;
-//       }
+    if (error) {
+        toast({
+        title: 'Delete failed',
+        description: error.message,
+        variant: 'destructive'
+        });
+        return;
+    }
 
-//       const today = startOfToday();
+    // Update UI
+    setRecurringTransactions(prev => prev.filter(tx => tx.id !== id));
 
-//      const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
-
-// recurringList.forEach((recurring) => {
-//   const nextDate = parseISO(recurring.next_occurrence);
-//   const lastExecuted = recurring.lastExecuted || null;
-
-//   const alreadyExecutedToday = lastExecuted === todayStr;
-
-//   if (
-//     !alreadyExecutedToday &&
-//     (isBefore(nextDate, today) || nextDate.toDateString() === today.toDateString())
-//   ) {
-//     executeTransaction(recurring);
-//   }
-// });
-//     };
-
-//     triggerRecurringTransactions();
-//     }, [user]);
-
-
-  // const toggleActive = (id: string) => {
-  // setRecurringTransactions(prev => prev.map(r => 
-  //     r.id === id ? { ...r, isActive: !r.is_active } : r
-  // ));
-  // };
-
-  // const deleteRecurring = (id: string) => {
-  // setRecurringTransactions(prev => prev.filter(r => r.id !== id));
-  // toast({
-  //     title: 'Recurring transaction deleted',
-  //     description: 'The recurring transaction has been removed.',
-  // });
-  // };
-
-    const deleteRecurring = async (id: string) => {
-      const { error } = await supabase
-      .from('recurring_transactions')
-      .delete()
-      .eq('id', id);
-
-      if (error) {
-          toast({
-          title: 'Delete failed',
-          description: error.message,
-          variant: 'destructive'
-          });
-          return;
-      }
-
-      // Update UI
-      setRecurringTransactions(prev => prev.filter(tx => tx.id !== id));
-
-      toast({
-          title: 'Deleted',
-          description: 'The Recurring transaction has been removed.',
-      });
-    };
+    toast({
+        title: 'Deleted',
+        description: 'The Recurring transaction has been removed.',
+    });
+  };
 
 
   return (
     <div className="space-y-6">
       <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-md">
-        {/* <CardHeader>
-          <CardTitle className="block md:flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Repeat className="h-5 w-5" />
-              <span>Recurring Transactions</span>
-            </div>
-            <Button onClick={() => setShowForm(!showForm)} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Recurring
-            </Button>
-          </CardTitle>
-        </CardHeader> */}
         <CardHeader>
           <CardTitle className="flex flex-col md:flex-row items-center md:items-start justify-between gap-2">
             {/* Left side: Icon + text */}

@@ -123,6 +123,65 @@ export const FinancialProvider = ({ children }: { children: React.ReactNode }) =
     localStorage.setItem('financialData', JSON.stringify(data));
   }, [transactions, goals, budgets]);
 
+//   useEffect(() => {
+//   const runRecurringTransactions = async () => {
+//     if (!user) return; // Only run if logged in
+
+//     const today = new Date().toISOString().split("T")[0];
+
+//     // Get active recurring transactions from Supabase
+//     const { data: recurringList, error } = await supabase
+//       .from("recurring_transactions")
+//       .select("*")
+//       .eq("is_active", true);
+
+//     if (error) {
+//       console.error("Error fetching recurring transactions:", error);
+//       return;
+//     }
+
+//     for (const recurring of recurringList) {
+//       const nextDate = new Date(recurring.next_occurrence).toISOString().split("T")[0];
+
+//       if (nextDate <= today) {
+//         // Execute it (just like your manual trigger)
+//         await addTransaction({
+//           type: recurring.type,
+//           amount: recurring.amount,
+//           category: recurring.category,
+//           description: `${recurring.description} (Auto)`,
+//           date: today,
+//         });
+
+//         // Update next_occurrence based on frequency
+//         const newDate = new Date(nextDate);
+//         switch (recurring.frequency) {
+//           case "daily":
+//             newDate.setDate(newDate.getDate() + 1);
+//             break;
+//           case "weekly":
+//             newDate.setDate(newDate.getDate() + 7);
+//             break;
+//           case "monthly":
+//             newDate.setMonth(newDate.getMonth() + 1);
+//             break;
+//           case "yearly":
+//             newDate.setFullYear(newDate.getFullYear() + 1);
+//             break;
+//         }
+
+//         await supabase
+//           .from("recurring_transactions")
+//           .update({ next_occurrence: newDate.toISOString().split("T")[0] })
+//           .eq("id", recurring.id);
+//       }
+//     }
+//   };
+
+//   runRecurringTransactions();
+// }, [user]); // Runs when user logs in
+
+
   const totalIncome = transactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
