@@ -34,7 +34,7 @@ const RecurringTransactions = () => {
     amount: '',
     category: '',
     description: '',
-    frequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
+    frequency: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
   });
 
   const categories = [
@@ -43,7 +43,7 @@ const RecurringTransactions = () => {
     'Salary', 'Freelance', 'Investment', 'Business', 'Other'
   ];
 
-
+  const today = (frequency: string)=> new Date().toISOString().split("T")[0];
   const getNextDate = (frequency: string) => {
     const now = new Date();
     switch (frequency) {
@@ -106,6 +106,7 @@ const RecurringTransactions = () => {
     description: formData.description,
     frequency: formData.frequency as 'daily' | 'weekly' | 'monthly' | 'yearly',
     next_occurrence: getNextDate(formData.frequency),
+    // next_occurrence: today(formData.frequency),
     is_active: true,
     user_id: user?.id || '',
     created_at: new Date().toISOString(),

@@ -20,16 +20,18 @@ import Notification from './Notification';
 //  import { getNextDate } from '@/lib/getNextDate';
  import  executeTransaction  from '../../components/dashboard/RecurringTransaction';
 //  import { useRecurringAutoTrigger } from '@/hooks/useRecurringAutoTrigger'
+import { useAutoRecurringTransactions } from "../../hooks/useAutoRecurringTransactions";
 
 const Dashboard = () => {
   // useRecurringAutoTrigger()
   const [activeTab, setActiveTab] = useState('overview');
   const { user } = useAuth();
   const firstName = user?.firstName || localStorage.getItem('firstName') || 'Friend';
-  const { balance, totalIncome, totalExpenses } = useFinancial();
+  const { balance, totalIncome, totalExpenses, addTransaction } = useFinancial();
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    useAutoRecurringTransactions(user, addTransaction);
 
     const fetchNotifications = async () => {
       setLoading(true);

@@ -35,6 +35,7 @@ export default function Notification({ notifications, fetchNotifications }) {
             Mark all as read
           </button>
         )}
+        <button>delete</button>
       </div>
         {notifications.length === 0 ? (
             <p>No notifications yet.</p>
