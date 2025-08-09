@@ -242,18 +242,18 @@ const RecurringTransactions = () => {
     <div className="space-y-6">
       <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-md">
         <CardHeader>
-          <CardTitle className="flex flex-col md:flex-row items-center md:items-start justify-between gap-2">
+          <CardTitle className="flex flex-row items-center justify-between gap-2">
             {/* Left side: Icon + text */}
-            <div className="flex items-center space-x-2 justify-center md:justify-start w-full md:w-auto">
+            <div className="flex items-center space-x-2 justify-start w-full ">
               <Repeat className="h-5 w-5" />
-              <span className='text-xl lg:text-2xl'>Recurring Transactions</span>
+              <span className='text-xl sm:text-2xl'>RecurringTransaction</span>
             </div>
 
             {/* Right side: Button */}
-            <div className="w-full md:w-auto flex justify-center md:justify-end">
+            <div className="w-full flex justify-end">
               <Button onClick={() => setShowForm(!showForm)} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Recurring
+                <Plus className="h-4 w-4" />
+                <span className='hidden sm:flex'>Add Recurring</span>
               </Button>
             </div>
           </CardTitle>
