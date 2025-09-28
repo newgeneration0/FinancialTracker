@@ -175,7 +175,7 @@ useEffect(() => {
       });
       }
         // return true;
-    }
+  }
 
   const logout = async () => {
     await supabase.auth.signOut();

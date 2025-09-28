@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useFinancial } from '../../contexts/FinancialContext';
 import { 
@@ -14,6 +14,35 @@ import {
 } from 'lucide-react';
 
 const SmartInsights = () => {
+  const [tickers, setTickers] = useState([]);
+  const [favourites, setFavourites] = useState<string[]>([])
+  const [loading, setLoading] = useState(true);
+  const apikey = import.meta.env.VITE_FINNHUB_KEY
+
+  useEffect(()=> {
+    async function fetchSymbols() {
+      try {
+        const res = await fetch(
+            `https://finnhub.io/api/v1/stock/symbol?exchange=US&token=${apikey}`
+        );
+        const data = await res.json();
+        setTickers(data)
+        setLoading(false)
+      } catch (err) {
+        console.error(err)
+        setLoading(false)
+      }
+    }
+    fetchSymbols()
+  }, [])
+
+  //toggle favourite
+  const toggleFavourite = (symbol: string) => {
+    setFavourites((prev)=>
+      prev.includes(symbol) ? prev.filter((s) => s !== symbol) : [...prev, symbol]
+    )
+  }
+
   const { transactions, goals, budgets } = useFinancial();
 
   const formatCurrency = (amount: number) => {
@@ -160,7 +189,33 @@ const SmartInsights = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div>
+      <div>
+        <div className='grid grid-cols-3 gap-2'>
+          {tickers.slice(0, 6).map((t) => (
+            <div className='flex items-center justify-between border p-2 space-x-4 hover:bg-gray-100'>
+              <button 
+                key={t.symbol}
+                // onclick={}
+                className='flex items-center space-x-2 borde p- rounded '
+              >
+                <span className='text-sm font-semibold font-mono'>{t.symbol}</span>
+                <span className='text-xs text-gray-500'>{t.description}</span>
+              </button>
+
+              <button 
+                onClick={()=> toggleFavourite(t.symbol)}
+                className='text-yellow-500 text-2xl'
+              >
+                {favourites.includes(t.symbol) ? "★" : "☆"}
+              </button>
+            </div>
+           
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-6">
       {/* AI Insights */}
       <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
         <CardHeader>
@@ -275,7 +330,9 @@ const SmartInsights = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
+
   );
 };
 

@@ -19,6 +19,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { log } from 'console';
 
 const UserProfile = () => {
   const { user, logout } = useAuth();
@@ -26,7 +27,8 @@ const UserProfile = () => {
   const { currencies, currentCurrency, setCurrency } = useCurrency();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.firstName || '',
+    fname: user?.firstName || '',
+    lname: user?.lastName || '',
     email: user?.email || '',
   });
 
@@ -41,7 +43,8 @@ const UserProfile = () => {
 
   const handleCancel = () => {
     setFormData({
-      name: user?.firstName || '',
+      fname: user?.firstName || '',
+      lname: user?.lastName || '',
       email: user?.email || '',
     });
     setIsEditing(false);
@@ -61,7 +64,7 @@ const UserProfile = () => {
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
             <Avatar className="h-24 w-24">
               <AvatarImage 
-            //   src={user?.avatar} 
+              // src={user?.avatar} 
               alt={user?.firstName} />
               <AvatarFallback className="text-lg">
                 {user?.firstName?.charAt(0)?.toUpperCase()}
@@ -72,12 +75,21 @@ const UserProfile = () => {
               {isEditing ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">FirstName</Label>
                     <Input
                       id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="Your name"
+                      value={formData.fname}
+                      onChange={(e) => setFormData({...formData, fname: e.target.value})}
+                      placeholder="Your Firstname"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="name">LastName</Label>
+                    <Input
+                      id="name"
+                      value={formData.lname}
+                      onChange={(e) => setFormData({...formData, lname: e.target.value})}
+                      placeholder="Your Lastname"
                     />
                   </div>
                   <div>
@@ -93,7 +105,7 @@ const UserProfile = () => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold">{user?.firstName}</h3>
+                  <h3 className="text-xl font-semibold">{user?.firstName} {user?.lastName}</h3>
                   <p className="text-muted-foreground">{user?.email}</p>
                 </div>
               )}

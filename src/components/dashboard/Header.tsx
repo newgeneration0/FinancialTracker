@@ -50,6 +50,7 @@ const Header = ({ activeTab, setActiveTab, unreadCount}: HeaderProps) => {
     { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
     { id: 'recurringTransactions', label: 'Recurring', icon: Receipt },
     { id: 'insights', label: 'Insights', icon: Lightbulb, route: '/insights' },
+    { id: 'market', label: 'Market', icon: Lightbulb, route: '/market' },
     { id: 'profile', label: 'Profile', icon: User, route: '/profile'},
   ];
 
@@ -70,22 +71,17 @@ const Header = ({ activeTab, setActiveTab, unreadCount}: HeaderProps) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-2">
-            {/* //hidden md:flex */}
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  // onClick={() => setActiveTab(tab.id)}
                   onClick={() => {
                     setActiveTab(tab.id)
-                    // navigate(tab.route)
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
                     activeTab === tab.id
-                      // ? 'bg-indigo-100 text-indigo-700' 
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                      // : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >

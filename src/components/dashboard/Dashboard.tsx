@@ -21,6 +21,7 @@ import Notification from './Notification';
  import  executeTransaction  from '../../components/dashboard/RecurringTransaction';
 //  import { useRecurringAutoTrigger } from '@/hooks/useRecurringAutoTrigger'
 import { useAutoRecurringTransactions } from "../../hooks/useAutoRecurringTransactions";
+import MarketInsight from './MarketInsight';
 
 const Dashboard = () => {
   // useRecurringAutoTrigger()
@@ -130,6 +131,8 @@ const Dashboard = () => {
         return <GoalsSection detailed />;
       case 'insights':
         return <SmartInsights />;
+      case 'market':
+      return <MarketInsight />;
       case 'social':
         return <SocialFeatures />;
       case 'profile' :
